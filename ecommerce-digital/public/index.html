@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-commerce Digital - Serviços Digitais Profissionais</title>
+  <meta name="description" content="LLC EUA, TikTok Shop, Business Managers, Apps Personalizados e muito mais. Transforme seu negócio digital.">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo">
+          <span>💼</span>
+          <span>Digital Services</span>
+        </a>
+        <nav class="nav" id="mainNav">
+          <a href="/" class="nav-link active">Serviços</a>
+          <a href="/creditos.html" class="nav-link">Créditos</a>
+          <a href="/painel-cliente.html" class="nav-link">Meus Pedidos</a>
+          <a href="/login.html" class="nav-link btn btn-primary btn-sm" id="authButton">Login</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero-title">Serviços Digitais que Transformam Negócios</h1>
+      <p class="hero-subtitle">
+        LLC nos EUA, TikTok Shop, Business Managers verificados, Apps personalizados e muito mais.
+        Tudo que você precisa para escalar seu e-commerce.
+      </p>
+      <div class="hero-cta">
+        <a href="#servicos" class="btn btn-lg btn-accent">Ver Todos os Serviços</a>
+        <a href="/creditos.html" class="btn btn-lg btn-outline">Comprar Créditos</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categorias -->
+  <section style="padding: 60px 0; background: white;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 40px;">
+        <h2 style="font-size: 36px; font-weight: 800; margin-bottom: 16px;">Categorias de Serviços</h2>
+        <p style="font-size: 18px; color: var(--text-light);">Escolha a categoria que precisa ou navegue por todos os serviços</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px;">
+        <button class="btn btn-outline category-filter" data-category="all">
+          Todos (14)
+        </button>
+        <button class="btn btn-outline category-filter" data-category="marketplace">
+          🛍️ Marketplaces
+        </button>
+        <button class="btn btn-outline category-filter" data-category="ads">
+          🔐 Business Managers
+        </button>
+        <button class="btn btn-outline category-filter" data-category="infraestrutura">
+          🌐 Infraestrutura
+        </button>
+        <button class="btn btn-outline category-filter" data-category="desenvolvimento">
+          📱 Desenvolvimento
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catálogo de Serviços -->
+  <section id="servicos" style="padding: 60px 0;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 48px;">
+        <h2 style="font-size: 36px; font-weight: 800; margin-bottom: 16px;">Nossos Serviços</h2>
+        <p style="font-size: 18px; color: var(--text-light);">Soluções completas para seu negócio digital</p>
+      </div>
+
+      <div class="services-grid" id="servicesGrid">
+        <!-- Serviços serão carregados aqui via JavaScript -->
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+          <div class="loading loading-lg" style="border-color: var(--primary); border-top-color: transparent;"></div>
+          <p style="margin-top: 16px; color: var(--text-light);">Carregando serviços...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefícios -->
+  <section style="padding: 80px 0; background: var(--bg-white);">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 48px;">
+        <h2 style="font-size: 36px; font-weight: 800; margin-bottom: 16px;">Por Que Escolher Nossos Serviços?</h2>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px;">
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 16px;">⚡</div>
+          <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Entrega Rápida</h3>
+          <p style="color: var(--text-light);">Processos otimizados para entregar seus serviços no menor tempo possível.</p>
+        </div>
+
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
+          <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">100% Seguro</h3>
+          <p style="color: var(--text-light);">Pagamentos protegidos e dados criptografados. Sua segurança é nossa prioridade.</p>
+        </div>
+
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
+          <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Suporte Dedicado</h3>
+          <p style="color: var(--text-light);">Equipe especializada pronta para ajudar em português, sempre que precisar.</p>
+        </div>
+
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+          <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Garantia de Qualidade</h3>
+          <p style="color: var(--text-light);">Todos os serviços são testados e validados antes da entrega.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Depoimentos -->
+  <section style="padding: 80px 0;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 48px;">
+        <h2 style="font-size: 36px; font-weight: 800; margin-bottom: 16px;">O Que Nossos Clientes Dizem</h2>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+        <div class="card">
+          <div style="margin-bottom: 16px;">
+            <div style="color: #fbbf24; font-size: 20px;">★★★★★</div>
+          </div>
+          <p style="font-style: italic; margin-bottom: 16px;">
+            "A LLC nos EUA abriu portas incríveis para meu negócio. Processo super rápido e suporte impecável!"
+          </p>
+          <div style="font-weight: 600;">João Silva</div>
+          <div style="font-size: 14px; color: var(--text-light);">E-commerce Owner</div>
+        </div>
+
+        <div class="card">
+          <div style="margin-bottom: 16px;">
+            <div style="color: #fbbf24; font-size: 20px;">★★★★★</div>
+          </div>
+          <p style="font-style: italic; margin-bottom: 16px;">
+            "TikTok Shop US funcionando perfeitamente. Já estou vendendo para os Estados Unidos!"
+          </p>
+          <div style="font-weight: 600;">Maria Santos</div>
+          <div style="font-size: 14px; color: var(--text-light);">Digital Seller</div>
+        </div>
+
+        <div class="card">
+          <div style="margin-bottom: 16px;">
+            <div style="color: #fbbf24; font-size: 20px;">★★★★★</div>
+          </div>
+          <p style="font-style: italic; margin-bottom: 16px;">
+            "Comprei créditos e economizei muito! Já usei em vários serviços. Super recomendo!"
+          </p>
+          <div style="font-weight: 600;">Carlos Oliveira</div>
+          <div style="font-size: 14px; color: var(--text-light);">Agency Owner</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Final -->
+  <section style="padding: 80px 0; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
+    <div class="container" style="text-align: center;">
+      <h2 style="font-size: 36px; font-weight: 800; margin-bottom: 16px;">Pronto para Transformar Seu Negócio?</h2>
+      <p style="font-size: 20px; margin-bottom: 32px; opacity: 0.9;">
+        Escolha um serviço e comece agora mesmo. Suporte completo em português!
+      </p>
+      <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <a href="#servicos" class="btn btn-lg btn-accent">Ver Serviços</a>
+        <a href="/creditos.html" class="btn btn-lg btn-outline" style="border-color: white; color: white;">Comprar Créditos</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Digital Services</h3>
+          <p style="opacity: 0.8;">Serviços digitais profissionais para escalar seu negócio online.</p>
+        </div>
+
+        <div class="footer-section">
+          <h3>Serviços</h3>
+          <ul>
+            <li><a href="#servicos">LLC EUA</a></li>
+            <li><a href="#servicos">TikTok Shop</a></li>
+            <li><a href="#servicos">Business Managers</a></li>
+            <li><a href="#servicos">Apps Personalizados</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Suporte</h3>
+          <ul>
+            <li><a href="/painel-cliente.html">Meus Pedidos</a></li>
+            <li><a href="/creditos.html">Créditos</a></li>
+            <li><a href="mailto:suporte@digitalservices.com">Email</a></li>
+            <li><a href="https://wa.me/5511999999999">WhatsApp</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="#">Termos de Uso</a></li>
+            <li><a href="#">Política de Privacidade</a></li>
+            <li><a href="#">Política de Reembolso</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2024 Digital Services. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="/js/main.js"></script>
+  <script>
+    // Carregar e exibir serviços
+    async function loadServices() {
+      try {
+        const response = await fetch('/api/services');
+        const data = await response.json();
+
+        displayServices(data.services);
+      } catch (error) {
+        console.error('Erro ao carregar serviços:', error);
+        document.getElementById('servicesGrid').innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+            <p style="color: var(--accent);">Erro ao carregar serviços. Tente novamente.</p>
+          </div>
+        `;
+      }
+    }
+
+    function displayServices(services, category = 'all') {
+      const grid = document.getElementById('servicesGrid');
+
+      const filteredServices = category === 'all'
+        ? services
+        : services.filter(s => s.category === category);
+
+      if (filteredServices.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+            <p style="color: var(--text-light);">Nenhum serviço encontrado nesta categoria.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filteredServices.map(service => `
+        <div class="card service-card" data-category="${service.category}">
+          ${service.popular ? '<div class="service-badge">POPULAR</div>' : ''}
+
+          <div class="service-icon">${service.image}</div>
+
+          <div class="card-header">
+            <h3 class="card-title">${service.name}</h3>
+            <p class="card-subtitle">${service.deliveryTime}</p>
+          </div>
+
+          <div class="card-body">
+            <div class="service-price">
+              R$ ${service.price.toFixed(2).replace('.', ',')}
+              ${service.recurring ? '<span class="service-price-small">/' + (service.recurring === 'monthly' ? 'mês' : 'consulta') + '</span>' : ''}
+            </div>
+
+            <p style="color: var(--text-light); margin-bottom: 16px;">${service.description}</p>
+
+            <ul class="service-features">
+              ${service.features.slice(0, 4).map(f => `<li>${f}</li>`).join('')}
+              ${service.features.length > 4 ? `<li style="color: var(--primary); font-weight: 600;">+${service.features.length - 4} benefícios</li>` : ''}
+            </ul>
+          </div>
+
+          <div class="card-footer">
+            <a href="/servico.html?id=${service.id}" class="btn btn-primary btn-block">
+              Ver Detalhes
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filtros de categoria
+    document.querySelectorAll('.category-filter').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.category-filter').forEach(b => b.classList.remove('btn-primary'));
+        document.querySelectorAll('.category-filter').forEach(b => b.classList.add('btn-outline'));
+
+        this.classList.remove('btn-outline');
+        this.classList.add('btn-primary');
+
+        const category = this.dataset.category;
+
+        // Refiltrar serviços
+        fetch('/api/services')
+          .then(r => r.json())
+          .then(data => displayServices(data.services, category));
+      });
+    });
+
+    // Verificar autenticação
+    checkAuth();
+
+    // Carregar serviços ao iniciar
+    loadServices();
+  </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar Conta - E-commerce Digital</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo">
+          <span>💼</span>
+          <span>Digital Services</span>
+        </a>
+        <nav class="nav">
+          <a href="/" class="nav-link">Início</a>
+          <a href="/login.html" class="btn btn-outline btn-sm">Já tenho conta</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <section style="padding: 80px 0; min-height: calc(100vh - 200px);">
+    <div class="container-narrow">
+      <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Criar sua conta</h1>
+          <p style="color: var(--text-light);">Preencha os dados abaixo para começar</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <form id="registerForm">
+          <div class="form-group">
+            <label class="form-label form-label-required">Nome Completo</label>
+            <input
+              type="text"
+              class="form-input"
+              id="name"
+              placeholder="Seu nome completo"
+              required
+              autocomplete="name"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">Email</label>
+            <input
+              type="email"
+              class="form-input"
+              id="email"
+              placeholder="seu@email.com"
+              required
+              autocomplete="email"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">CPF</label>
+            <input
+              type="text"
+              class="form-input"
+              id="cpf"
+              placeholder="000.000.000-00"
+              required
+              data-cpf
+              maxlength="14"
+            >
+            <div class="form-help">Necessário para emissão de documentos</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Telefone/WhatsApp</label>
+            <input
+              type="tel"
+              class="form-input"
+              id="phone"
+              placeholder="(00) 00000-0000"
+              autocomplete="tel"
+              maxlength="15"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">Senha</label>
+            <input
+              type="password"
+              class="form-input"
+              id="password"
+              placeholder="Mínimo 6 caracteres"
+              required
+              autocomplete="new-password"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">Confirmar Senha</label>
+            <input
+              type="password"
+              class="form-input"
+              id="confirmPassword"
+              placeholder="Digite a senha novamente"
+              required
+              autocomplete="new-password"
+            >
+          </div>
+
+          <div class="form-group">
+            <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="terms" required style="margin-top: 4px;">
+              <span style="font-size: 14px; color: var(--text-light);">
+                Concordo com os <a href="#" style="color: var(--primary);">Termos de Uso</a> e
+                <a href="#" style="color: var(--primary);">Política de Privacidade</a>
+              </span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-block" id="registerButton">
+            <span id="registerButtonText">Criar Conta</span>
+            <span id="registerButtonLoading" class="hidden">
+              <span class="loading"></span>
+              Criando conta...
+            </span>
+          </button>
+
+          <div style="text-align: center; margin-top: 24px;">
+            <p style="color: var(--text-light);">
+              Já tem uma conta?
+              <a href="/login.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">Fazer login</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script src="/js/main.js"></script>
+  <script>
+    // Verificar se já está logado
+    async function checkIfLoggedIn() {
+      const isAuth = await checkAuth();
+      if (isAuth) {
+        window.location.href = '/painel-cliente.html';
+      }
+    }
+
+    checkIfLoggedIn();
+
+    // Aplicar máscaras
+    const cpfInput = document.getElementById('cpf');
+    const phoneInput = document.getElementById('phone');
+
+    applyCPFMask(cpfInput);
+    applyPhoneMask(phoneInput);
+
+    // Form submit
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
+      const phone = document.getElementById('phone').value.replace(/\D/g, '');
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const terms = document.getElementById('terms').checked;
+
+      // Validações
+      if (name.length < 3) {
+        showAlert('Nome deve ter no mínimo 3 caracteres', 'error');
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        showAlert('Por favor, insira um email válido', 'error');
+        return;
+      }
+
+      if (!isValidCPF(cpf)) {
+        showAlert('CPF inválido', 'error');
+        return;
+      }
+
+      if (password.length < 6) {
+        showAlert('A senha deve ter no mínimo 6 caracteres', 'error');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showAlert('As senhas não coincidem', 'error');
+        return;
+      }
+
+      if (!terms) {
+        showAlert('Você precisa aceitar os termos de uso', 'error');
+        return;
+      }
+
+      // Mostrar loading
+      document.getElementById('registerButtonText').classList.add('hidden');
+      document.getElementById('registerButtonLoading').classList.remove('hidden');
+      document.getElementById('registerButton').disabled = true;
+
+      // Fazer registro
+      const result = await register({
+        name,
+        email,
+        cpf,
+        phone,
+        password
+      });
+
+      if (result.success) {
+        showAlert('Conta criada com sucesso!', 'success');
+
+        setTimeout(() => {
+          window.location.href = '/painel-cliente.html';
+        }, 1000);
+      } else {
+        showAlert(result.error, 'error');
+
+        // Resetar botão
+        document.getElementById('registerButtonText').classList.remove('hidden');
+        document.getElementById('registerButtonLoading').classList.add('hidden');
+        document.getElementById('registerButton').disabled = false;
+      }
+    });
+
+    function showAlert(message, type) {
+      const container = document.getElementById('alertContainer');
+      container.innerHTML = `
+        <div class="alert alert-${type}">
+          ${message}
+        </div>
+      `;
+
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

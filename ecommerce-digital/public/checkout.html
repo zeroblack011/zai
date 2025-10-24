@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - E-commerce Digital</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo"><span>💼</span><span>Digital Services</span></a>
+      </div>
+    </div>
+  </header>
+
+  <section style="padding: 40px 0; min-height: calc(100vh - 200px);">
+    <div class="container-narrow">
+      <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 32px; text-align: center;">Finalizar Compra</h1>
+
+      <div id="checkoutContent">
+        <!-- Resumo do Pedido -->
+        <div class="card" style="margin-bottom: 24px;">
+          <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">Resumo do Pedido</h2>
+          <div id="orderSummary"></div>
+        </div>
+
+        <!-- Formulário do Serviço -->
+        <div class="card" style="margin-bottom: 24px;" id="serviceFormCard">
+          <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">Informações do Serviço</h2>
+          <form id="serviceForm"></form>
+        </div>
+
+        <!-- Pagamento -->
+        <div class="card" id="paymentCard">
+          <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">Pagamento</h2>
+          <div id="paymentSection"></div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: center;">
+          <button class="btn btn-primary btn-lg" onclick="processCheckout()" id="checkoutButton">
+            Finalizar Pedido
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal PIX -->
+  <div id="pixModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Pagamento PIX</h2>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <div class="alert alert-success">✓ Pedido criado com sucesso!</div>
+        <p style="margin: 16px 0;">Escaneie o QR Code ou copie o código PIX:</p>
+        <div id="pixQRCode" style="margin: 24px 0;"></div>
+        <div style="background: var(--bg-light); padding: 12px; border-radius: var(--radius); margin-bottom: 16px; word-break: break-all; font-family: monospace; font-size: 12px;" id="pixCode"></div>
+        <button class="btn btn-secondary btn-block" onclick="copyPixCode()">Copiar Código PIX</button>
+        <p style="margin-top: 16px; color: var(--text-light); font-size: 14px;">
+          Após a confirmação do pagamento, você será notificado e poderá acompanhar seu pedido.
+        </p>
+        <button class="btn btn-primary btn-block" style="margin-top: 16px;" onclick="window.location.href='/painel-cliente.html'">
+          Ir para Meus Pedidos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/main.js"></script>
+  <script>
+    let currentService = null;
+    let paymentMethod = 'pix';
+    let currentPixCode = '';
+
+    async function init() {
+      const isAuth = await requireAuth();
+      if (!isAuth) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const serviceId = urlParams.get('service');
+      paymentMethod = urlParams.get('payment') || 'pix';
+
+      if (!serviceId) {
+        window.location.href = '/';
+        return;
+      }
+
+      try {
+        const data = await getService(serviceId);
+        currentService = data.service;
+        setupCheckout();
+      } catch (error) {
+        showToast('Erro ao carregar serviço', 'error');
+        setTimeout(() => window.location.href = '/', 2000);
+      }
+    }
+
+    function setupCheckout() {
+      // Resumo
+      document.getElementById('orderSummary').innerHTML = `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+          <span style="font-weight: 600;">${currentService.name}</span>
+          <span style="font-weight: 700; color: var(--primary);">${formatMoney(currentService.price)}</span>
+        </div>
+        <div style="font-size: 14px; color: var(--text-light);">
+          Entrega: ${currentService.deliveryTime}
+        </div>
+      `;
+
+      // Formulário específico do serviço
+      const form = document.getElementById('serviceForm');
+      form.innerHTML = `
+        <div class="form-group">
+          <label class="form-label form-label-required">Email para contato</label>
+          <input type="email" class="form-input" id="contactEmail" value="${AppState.user.email}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone/WhatsApp</label>
+          <input type="tel" class="form-input" id="contactPhone" placeholder="(00) 00000-0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Informações adicionais</label>
+          <textarea class="form-textarea" id="additionalInfo" placeholder="Nos conte mais detalhes sobre o que você precisa..."></textarea>
+        </div>
+      `;
+
+      // Pagamento
+      if (paymentMethod === 'credits') {
+        document.getElementById('paymentCard').style.display = 'none';
+      } else {
+        const paymentSection = document.getElementById('paymentSection');
+        if (paymentMethod === 'pix') {
+          paymentSection.innerHTML = `
+            <div class="alert alert-info">
+              Após finalizar, você receberá o QR Code PIX para pagamento.
+            </div>
+          `;
+        } else {
+          paymentSection.innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Nome no cartão</label>
+              <input type="text" class="form-input" id="cardHolderName" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Número do cartão</label>
+              <input type="text" class="form-input" id="cardNumber" maxlength="19" required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label class="form-label">Validade</label>
+                <input type="text" class="form-input" id="cardExpiry" placeholder="MM/AA" maxlength="5" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">CVV</label>
+                <input type="text" class="form-input" id="cardCVV" maxlength="4" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Parcelas</label>
+                <select class="form-select" id="installments">
+                  <option value="1">1x ${formatMoney(currentService.price)}</option>
+                  <option value="2">2x ${formatMoney(currentService.price / 2)}</option>
+                  <option value="3">3x ${formatMoney(currentService.price / 3)}</option>
+                  <option value="6">6x ${formatMoney(currentService.price / 6)}</option>
+                  <option value="12">12x ${formatMoney(currentService.price / 12)}</option>
+                </select>
+              </div>
+            </div>
+          `;
+
+          setTimeout(() => {
+            applyCardMask(document.getElementById('cardNumber'));
+            applyExpiryMask(document.getElementById('cardExpiry'));
+            applyCVVMask(document.getElementById('cardCVV'));
+          }, 100);
+        }
+      }
+    }
+
+    async function processCheckout() {
+      showLoading('Processando pedido...');
+
+      try {
+        // Criar pedido
+        const orderData = {
+          serviceId: currentService.id,
+          serviceName: currentService.name,
+          paymentMethod,
+          formData: {
+            email: document.getElementById('contactEmail')?.value,
+            phone: document.getElementById('contactPhone')?.value,
+            additionalInfo: document.getElementById('additionalInfo')?.value
+          }
+        };
+
+        const orderResult = await createOrder(orderData);
+
+        if (paymentMethod === 'credits') {
+          hideLoading();
+          showToast('Pedido criado com sucesso!', 'success');
+          setTimeout(() => window.location.href = '/painel-cliente.html', 1500);
+          return;
+        }
+
+        // Criar pagamento
+        const paymentData = {
+          orderId: orderResult.order.id
+        };
+
+        if (paymentMethod === 'credit_card') {
+          paymentData.cardHolderName = document.getElementById('cardHolderName').value;
+          paymentData.cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+          const expiry = document.getElementById('cardExpiry').value.split('/');
+          paymentData.cardExpiryMonth = expiry[0];
+          paymentData.cardExpiryYear = '20' + expiry[1];
+          paymentData.cardCvv = document.getElementById('cardCVV').value;
+          paymentData.installments = document.getElementById('installments').value;
+        }
+
+        const paymentResult = await createPayment(paymentData);
+
+        hideLoading();
+
+        if (paymentMethod === 'pix') {
+          currentPixCode = paymentResult.pix.copyPaste;
+          document.getElementById('pixCode').textContent = paymentResult.pix.copyPaste;
+          document.getElementById('pixQRCode').innerHTML = `<img src="data:image/png;base64,${paymentResult.pix.qrCode}" style="max-width: 300px;">`;
+          openModal('pixModal');
+        } else {
+          showToast('Pedido realizado com sucesso!', 'success');
+          setTimeout(() => window.location.href = '/painel-cliente.html', 1500);
+        }
+
+      } catch (error) {
+        hideLoading();
+        showToast(error.message || 'Erro ao processar pedido', 'error');
+      }
+    }
+
+    function copyPixCode() {
+      copyToClipboard(currentPixCode);
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+name = "ecommerce-digital"
+main = "src/worker.js"
+compatibility_date = "2024-01-15"
+
+# KV Namespaces
+[[kv_namespaces]]
+binding = "ECOMMERCE_DB"
+id = "SEU_KV_NAMESPACE_ID_AQUI"
+
+# Environment Variables
+[vars]
+ENVIRONMENT = "production"
+
+# Secrets (configure via: wrangler secret put ASAAS_API_KEY)
+# ASAAS_API_KEY
+# JWT_SECRET
+# ADMIN_PASSWORD
+
+[build]
+command = ""
+
+[env.production]
+name = "ecommerce-digital"
+routes = [
+  { pattern = "seudominio.com/*", zone_name = "seudominio.com" }
+]
+
+[env.development]
+name = "ecommerce-digital-dev"

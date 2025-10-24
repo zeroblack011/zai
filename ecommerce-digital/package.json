@@ -1,0 +1,17 @@
+{
+  "name": "ecommerce-digital",
+  "version": "1.0.0",
+  "description": "Sistema completo de e-commerce para serviços digitais",
+  "main": "src/worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "keywords": ["cloudflare", "workers", "ecommerce", "asaas"],
+  "author": "Zai Digital Services",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

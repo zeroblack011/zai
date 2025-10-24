@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin - E-commerce Digital</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo"><span>💼</span><span>Digital Services Admin</span></a>
+        <nav class="nav">
+          <span style="color: var(--text-light);">Admin</span>
+          <button class="btn btn-outline btn-sm" onclick="logout()">Sair</button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <section style="padding: 40px 0; min-height: calc(100vh - 200px);">
+    <div class="container-wide">
+      <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 32px;">Painel Administrativo</h1>
+
+      <!-- Estatísticas -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 40px;">
+        <div class="card">
+          <div style="font-size: 14px; color: var(--text-light); margin-bottom: 8px;">Pedidos Pendentes</div>
+          <div style="font-size: 32px; font-weight: 800; color: var(--accent);" id="statPending">0</div>
+        </div>
+        <div class="card">
+          <div style="font-size: 14px; color: var(--text-light); margin-bottom: 8px;">Em Processamento</div>
+          <div style="font-size: 32px; font-weight: 800; color: var(--primary);" id="statProcessing">0</div>
+        </div>
+        <div class="card">
+          <div style="font-size: 14px; color: var(--text-light); margin-bottom: 8px;">Concluídos Hoje</div>
+          <div style="font-size: 32px; font-weight: 800; color: var(--secondary);" id="statCompleted">0</div>
+        </div>
+        <div class="card">
+          <div style="font-size: 14px; color: var(--text-light); margin-bottom: 8px;">Total de Pedidos</div>
+          <div style="font-size: 32px; font-weight: 800; color: var(--neutral);" id="statTotal">0</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+        <button class="btn btn-primary btn-sm filter-btn active" data-status="all" onclick="filterOrders('all')">
+          Todos
+        </button>
+        <button class="btn btn-outline btn-sm filter-btn" data-status="pending" onclick="filterOrders('pending')">
+          Pendentes
+        </button>
+        <button class="btn btn-outline btn-sm filter-btn" data-status="paid" onclick="filterOrders('paid')">
+          Pagos
+        </button>
+        <button class="btn btn-outline btn-sm filter-btn" data-status="processing" onclick="filterOrders('processing')">
+          Em Processo
+        </button>
+        <button class="btn btn-outline btn-sm filter-btn" data-status="completed" onclick="filterOrders('completed')">
+          Concluídos
+        </button>
+
+        <div style="margin-left: auto;">
+          <button class="btn btn-secondary btn-sm" onclick="loadOrders()">🔄 Atualizar</button>
+        </div>
+      </div>
+
+      <!-- Lista de Pedidos -->
+      <div id="ordersContainer"></div>
+    </div>
+  </section>
+
+  <!-- Modal Editar Pedido -->
+  <div id="editOrderModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Gerenciar Pedido</h2>
+        <button class="modal-close" onclick="closeModal('editOrderModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="orderDetails"></div>
+
+        <div class="form-group">
+          <label class="form-label">Status do Pedido</label>
+          <select class="form-select" id="orderStatus">
+            <option value="pending">Aguardando Pagamento</option>
+            <option value="paid">Pago</option>
+            <option value="processing">Em Processamento</option>
+            <option value="completed">Concluído</option>
+            <option value="cancelled">Cancelado</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notas / Atualizações</label>
+          <textarea class="form-textarea" id="orderNotes" placeholder="Adicione notas sobre o andamento..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('editOrderModal')">Cancelar</button>
+        <button class="btn btn-primary" onclick="updateOrder()">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/main.js"></script>
+  <script>
+    let allOrders = [];
+    let currentFilter = 'all';
+    let currentEditingOrder = null;
+
+    async function init() {
+      // Verificar autenticação admin (Basic Auth)
+      const authHeader = prompt('Digite a senha de administrador:');
+      if (!authHeader) {
+        window.location.href = '/';
+        return;
+      }
+
+      // Guardar credencial
+      const credentials = btoa(`admin:${authHeader}`);
+      localStorage.setItem('adminAuth', credentials);
+
+      await loadOrders();
+    }
+
+    async function loadOrders() {
+      showLoading('Carregando pedidos...');
+
+      try {
+        const credentials = localStorage.getItem('adminAuth');
+        if (!credentials) {
+          window.location.href = '/';
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/api/admin/orders`, {
+          headers: {
+            'Authorization': `Basic ${credentials}`
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 403) {
+            localStorage.removeItem('adminAuth');
+            alert('Acesso negado');
+            window.location.href = '/';
+            return;
+          }
+          throw new Error('Erro ao carregar pedidos');
+        }
+
+        const data = await response.json();
+        allOrders = data.orders || [];
+
+        updateStats();
+        displayOrders();
+
+        hideLoading();
+      } catch (error) {
+        hideLoading();
+        showToast('Erro ao carregar pedidos', 'error');
+      }
+    }
+
+    function updateStats() {
+      const pending = allOrders.filter(o => o.status === 'pending').length;
+      const processing = allOrders.filter(o => o.status === 'processing').length;
+      const today = new Date().toISOString().split('T')[0];
+      const completedToday = allOrders.filter(o =>
+        o.status === 'completed' &&
+        o.completedAt &&
+        o.completedAt.startsWith(today)
+      ).length;
+
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statProcessing').textContent = processing;
+      document.getElementById('statCompleted').textContent = completedToday;
+      document.getElementById('statTotal').textContent = allOrders.length;
+    }
+
+    function displayOrders() {
+      const container = document.getElementById('ordersContainer');
+
+      const filteredOrders = currentFilter === 'all'
+        ? allOrders
+        : allOrders.filter(o => o.status === currentFilter);
+
+      if (filteredOrders.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; padding: 60px 20px;">
+            <p style="color: var(--text-light);">Nenhum pedido encontrado</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="card">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Valor</th>
+                <th>Pagamento</th>
+                <th>Status</th>
+                <th>Data</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredOrders.map(order => {
+                const statusColors = {
+                  pending: 'status-pending',
+                  paid: 'status-paid',
+                  processing: 'status-processing',
+                  completed: 'status-completed',
+                  cancelled: 'status-cancelled'
+                };
+
+                const statusLabels = {
+                  pending: 'Pendente',
+                  paid: 'Pago',
+                  processing: 'Processando',
+                  completed: 'Concluído',
+                  cancelled: 'Cancelado'
+                };
+
+                return `
+                  <tr>
+                    <td style="font-family: monospace; font-size: 12px;">${order.id}</td>
+                    <td>${order.customerId}</td>
+                    <td style="font-weight: 600;">${order.serviceName}</td>
+                    <td style="font-weight: 600; color: var(--primary);">${formatMoney(order.amount)}</td>
+                    <td style="font-size: 12px;">${order.paymentMethod === 'pix' ? 'PIX' : order.paymentMethod === 'credit_card' ? 'Cartão' : 'Créditos'}</td>
+                    <td><span class="status-badge ${statusColors[order.status]}">${statusLabels[order.status]}</span></td>
+                    <td style="font-size: 12px;">${formatDate(order.createdAt)}</td>
+                    <td>
+                      <button class="btn btn-sm btn-primary" onclick='editOrder(${JSON.stringify(order)})'>
+                        Gerenciar
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function filterOrders(status) {
+      currentFilter = status;
+
+      // Atualizar botões
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('btn-primary', 'active');
+        btn.classList.add('btn-outline');
+      });
+
+      const activeBtn = document.querySelector(`[data-status="${status}"]`);
+      activeBtn.classList.remove('btn-outline');
+      activeBtn.classList.add('btn-primary', 'active');
+
+      displayOrders();
+    }
+
+    function editOrder(order) {
+      currentEditingOrder = order;
+
+      // Preencher detalhes
+      document.getElementById('orderDetails').innerHTML = `
+        <div style="background: var(--bg-light); padding: 16px; border-radius: var(--radius); margin-bottom: 24px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <div style="font-size: 12px; color: var(--text-light); margin-bottom: 4px;">Pedido</div>
+              <div style="font-weight: 600;">${order.id}</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: var(--text-light); margin-bottom: 4px;">Serviço</div>
+              <div style="font-weight: 600;">${order.serviceName}</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: var(--text-light); margin-bottom: 4px;">Cliente ID</div>
+              <div style="font-weight: 600;">${order.customerId}</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: var(--text-light); margin-bottom: 4px;">Valor</div>
+              <div style="font-weight: 600; color: var(--primary);">${formatMoney(order.amount)}</div>
+            </div>
+          </div>
+
+          ${order.formData && Object.keys(order.formData).length > 0 ? `
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+              <div style="font-size: 12px; color: var(--text-light); margin-bottom: 8px;">Dados do Formulário:</div>
+              <pre style="background: white; padding: 12px; border-radius: var(--radius); font-size: 12px; overflow-x: auto;">${JSON.stringify(order.formData, null, 2)}</pre>
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      document.getElementById('orderStatus').value = order.status;
+      document.getElementById('orderNotes').value = order.notes || '';
+
+      openModal('editOrderModal');
+    }
+
+    async function updateOrder() {
+      const newStatus = document.getElementById('orderStatus').value;
+      const notes = document.getElementById('orderNotes').value;
+
+      showLoading('Atualizando pedido...');
+
+      try {
+        const credentials = localStorage.getItem('adminAuth');
+
+        const response = await fetch(`${API_URL}/api/admin/orders/${currentEditingOrder.id}/status`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Basic ${credentials}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: newStatus, notes })
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao atualizar pedido');
+        }
+
+        hideLoading();
+        closeModal('editOrderModal');
+        showToast('Pedido atualizado com sucesso!', 'success');
+
+        // Recarregar pedidos
+        await loadOrders();
+
+      } catch (error) {
+        hideLoading();
+        showToast(error.message || 'Erro ao atualizar pedido', 'error');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('adminAuth');
+      window.location.href = '/';
+    }
+
+    init();
+  </script>
+</body>
+</html>

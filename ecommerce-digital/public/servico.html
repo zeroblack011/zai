@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes do Serviço - E-commerce Digital</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo">
+          <span>💼</span>
+          <span>Digital Services</span>
+        </a>
+        <nav class="nav" id="mainNav">
+          <a href="/" class="nav-link">Serviços</a>
+          <a href="/creditos.html" class="nav-link">Créditos</a>
+          <a href="/painel-cliente.html" class="nav-link">Meus Pedidos</a>
+          <a href="/login.html" class="nav-link btn btn-primary btn-sm" id="authButton">Login</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <section style="padding: 40px 0; min-height: calc(100vh - 200px);">
+    <div class="container">
+      <!-- Loading inicial -->
+      <div id="loadingContainer" style="text-align: center; padding: 100px 20px;">
+        <div class="loading loading-lg" style="border-color: var(--primary); border-top-color: transparent;"></div>
+        <p style="margin-top: 16px; color: var(--text-light);">Carregando serviço...</p>
+      </div>
+
+      <!-- Conteúdo do serviço -->
+      <div id="serviceContent" class="hidden">
+        <!-- Breadcrumb -->
+        <div style="margin-bottom: 24px;">
+          <a href="/" style="color: var(--text-light); text-decoration: none;">← Voltar para serviços</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 400px; gap: 40px;">
+          <!-- Coluna esquerda - Detalhes -->
+          <div>
+            <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px;">
+              <div id="serviceIcon" style="font-size: 64px;"></div>
+              <div style="flex: 1;">
+                <div style="display: flex; gap: 12px; margin-bottom: 8px;">
+                  <h1 id="serviceName" style="font-size: 36px; font-weight: 800; margin: 0;"></h1>
+                  <span id="popularBadge" class="badge badge-danger hidden">POPULAR</span>
+                </div>
+                <p id="serviceDelivery" style="color: var(--text-light); font-size: 16px; margin: 0;"></p>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px;">Sobre este serviço</h2>
+              <p id="serviceDescription" style="font-size: 18px; line-height: 1.8; color: var(--text-dark);"></p>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+              <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px;">O que está incluso</h2>
+              <ul id="serviceFeatures" class="service-features" style="font-size: 16px;"></ul>
+            </div>
+
+            <div class="card" style="margin-top: 24px; background: var(--bg-light); border: none;">
+              <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">🔒 Garantia de Qualidade</h3>
+              <p style="color: var(--text-light);">
+                Todos os nossos serviços passam por rigoroso controle de qualidade.
+                Se houver qualquer problema, nossa equipe está pronta para resolver.
+              </p>
+            </div>
+          </div>
+
+          <!-- Coluna direita - Compra -->
+          <div>
+            <div class="card" style="position: sticky; top: 80px;">
+              <div style="text-align: center; margin-bottom: 24px;">
+                <div id="servicePrice" style="font-size: 48px; font-weight: 800; color: var(--primary);"></div>
+                <div id="servicePriceRecurring" style="font-size: 16px; color: var(--text-light); margin-top: 4px;"></div>
+                <div id="serviceCredits" style="font-size: 14px; color: var(--text-light); margin-top: 8px;"></div>
+              </div>
+
+              <div id="paymentOptions" style="margin-bottom: 24px;">
+                <div style="font-weight: 600; margin-bottom: 12px;">Formas de pagamento:</div>
+
+                <label class="card" style="padding: 12px; margin-bottom: 8px; cursor: pointer; border: 2px solid var(--border);">
+                  <input type="radio" name="paymentMethod" value="pix" checked style="margin-right: 8px;">
+                  <span>PIX (Aprovação instantânea)</span>
+                </label>
+
+                <label class="card" style="padding: 12px; margin-bottom: 8px; cursor: pointer; border: 2px solid var(--border);">
+                  <input type="radio" name="paymentMethod" value="credit_card" style="margin-right: 8px;">
+                  <span>Cartão de Crédito (Em até 12x)</span>
+                </label>
+
+                <label id="creditsOption" class="card hidden" style="padding: 12px; cursor: pointer; border: 2px solid var(--secondary);">
+                  <input type="radio" name="paymentMethod" value="credits" style="margin-right: 8px;">
+                  <span>Usar Créditos (<span id="userCreditsBalance">0</span> disponíveis)</span>
+                </label>
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-block" onclick="handlePurchase()">
+                Comprar Agora
+              </button>
+
+              <div style="text-align: center; margin-top: 16px;">
+                <a href="/creditos.html" style="color: var(--primary); text-decoration: none; font-size: 14px;">
+                  💰 Comprar com créditos e economizar até 66%
+                </a>
+              </div>
+
+              <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 14px; color: var(--text-light);">
+                <p style="margin-bottom: 8px;">✓ Pagamento 100% seguro</p>
+                <p style="margin-bottom: 8px;">✓ Suporte em português</p>
+                <p style="margin-bottom: 0;">✓ Entrega garantida</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Erro -->
+      <div id="errorContainer" class="hidden" style="text-align: center; padding: 100px 20px;">
+        <div style="font-size: 64px; margin-bottom: 16px;">😞</div>
+        <h2 style="margin-bottom: 16px;">Serviço não encontrado</h2>
+        <p style="color: var(--text-light); margin-bottom: 24px;">O serviço que você procura não existe ou foi removido.</p>
+        <a href="/" class="btn btn-primary">Ver Todos os Serviços</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2024 Digital Services. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+  <script>
+    let currentService = null;
+
+    async function loadService() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const serviceId = urlParams.get('id');
+
+      if (!serviceId) {
+        showError();
+        return;
+      }
+
+      try {
+        const data = await getService(serviceId);
+
+        if (!data || !data.service) {
+          showError();
+          return;
+        }
+
+        currentService = data.service;
+        displayService(currentService);
+
+        // Verificar se usuário está logado para mostrar opção de créditos
+        if (AppState.user && AppState.user.credits >= currentService.credits) {
+          document.getElementById('creditsOption').classList.remove('hidden');
+          document.getElementById('userCreditsBalance').textContent = AppState.user.credits;
+        }
+
+      } catch (error) {
+        console.error('Erro ao carregar serviço:', error);
+        showError();
+      }
+    }
+
+    function displayService(service) {
+      // Atualizar título da página
+      document.title = `${service.name} - E-commerce Digital`;
+
+      // Icon
+      document.getElementById('serviceIcon').textContent = service.image;
+
+      // Nome e badge
+      document.getElementById('serviceName').textContent = service.name;
+      if (service.popular) {
+        document.getElementById('popularBadge').classList.remove('hidden');
+      }
+
+      // Delivery
+      document.getElementById('serviceDelivery').textContent = `⏱️ Entrega: ${service.deliveryTime}`;
+
+      // Descrição
+      document.getElementById('serviceDescription').textContent = service.description;
+
+      // Features
+      document.getElementById('serviceFeatures').innerHTML = service.features
+        .map(f => `<li>${f}</li>`)
+        .join('');
+
+      // Preço
+      document.getElementById('servicePrice').textContent = formatMoney(service.price);
+
+      if (service.recurring) {
+        const period = service.recurring === 'monthly' ? 'por mês' :
+                      service.recurring === 'per-session' ? 'por consulta' : '';
+        document.getElementById('servicePriceRecurring').textContent = period;
+      }
+
+      // Créditos
+      document.getElementById('serviceCredits').textContent = `ou ${service.credits} créditos`;
+
+      // Mostrar conteúdo
+      document.getElementById('loadingContainer').classList.add('hidden');
+      document.getElementById('serviceContent').classList.remove('hidden');
+    }
+
+    function showError() {
+      document.getElementById('loadingContainer').classList.add('hidden');
+      document.getElementById('errorContainer').classList.remove('hidden');
+    }
+
+    async function handlePurchase() {
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+      // Verificar autenticação
+      const isAuth = await requireAuth();
+      if (!isAuth) return;
+
+      // Se for créditos, verificar saldo
+      if (paymentMethod === 'credits') {
+        if (!AppState.user || AppState.user.credits < currentService.credits) {
+          showToast('Créditos insuficientes', 'error');
+          return;
+        }
+
+        // Confirmar
+        if (!confirm(`Deseja usar ${currentService.credits} créditos para comprar ${currentService.name}?`)) {
+          return;
+        }
+      }
+
+      // Ir para checkout
+      window.location.href = `/checkout.html?service=${currentService.id}&payment=${paymentMethod}`;
+    }
+
+    // Atualizar seleção de pagamento
+    document.addEventListener('change', function(e) {
+      if (e.target.name === 'paymentMethod') {
+        // Destacar opção selecionada
+        document.querySelectorAll('label.card').forEach(label => {
+          label.style.borderColor = 'var(--border)';
+          label.style.background = 'white';
+        });
+
+        e.target.parentElement.style.borderColor = 'var(--primary)';
+        e.target.parentElement.style.background = 'var(--bg-light)';
+      }
+    });
+
+    // Carregar
+    checkAuth();
+    loadService();
+  </script>
+</body>
+</html>

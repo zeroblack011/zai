@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Painel - E-commerce Digital</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo"><span>💼</span><span>Digital Services</span></a>
+        <nav class="nav">
+          <a href="/" class="nav-link">Serviços</a>
+          <a href="/creditos.html" class="nav-link">Comprar Créditos</a>
+          <a href="/painel-cliente.html" class="nav-link active">Meu Painel</a>
+          <button class="btn btn-outline btn-sm" onclick="logout()">Sair</button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <section style="padding: 40px 0; min-height: calc(100vh - 200px);">
+    <div class="container">
+      <div style="margin-bottom: 40px;">
+        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Meu Painel</h1>
+        <p style="color: var(--text-light);">Bem-vindo, <span id="userName"></span>!</p>
+      </div>
+
+      <!-- Cards de Resumo -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 40px;">
+        <div class="card" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white;">
+          <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Créditos Disponíveis</div>
+          <div style="font-size: 36px; font-weight: 800;" id="creditsBalance">0</div>
+          <a href="/creditos.html" style="color: white; text-decoration: underline; font-size: 14px; margin-top: 8px; display: inline-block;">Comprar mais</a>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 14px; color: var(--text-light); margin-bottom: 8px;">Total de Pedidos</div>
+          <div style="font-size: 36px; font-weight: 800; color: var(--primary);" id="totalOrders">0</div>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 14px; color: var(--text-light); margin-bottom: 8px;">Pedidos em Andamento</div>
+          <div style="font-size: 36px; font-weight: 800; color: var(--secondary);" id="activeOrders">0</div>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 14px; color: var(--text-light); margin-bottom: 8px;">Pedidos Concluídos</div>
+          <div style="font-size: 36px; font-weight: 800; color: var(--neutral-lighter);" id="completedOrders">0</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display: flex; gap: 16px; border-bottom: 2px solid var(--border); margin-bottom: 24px;">
+        <button class="tab-button active" data-tab="orders" onclick="switchTab('orders')">Meus Pedidos</button>
+        <button class="tab-button" data-tab="credits" onclick="switchTab('credits')">Histórico de Créditos</button>
+      </div>
+
+      <!-- Tab: Pedidos -->
+      <div id="tabOrders">
+        <div id="ordersContainer"></div>
+      </div>
+
+      <!-- Tab: Créditos -->
+      <div id="tabCredits" class="hidden">
+        <div id="creditsContainer"></div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .tab-button {
+      background: transparent;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-light);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: var(--transition);
+    }
+
+    .tab-button.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-button:hover {
+      color: var(--primary);
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-paid { background: #dbeafe; color: #1e40af; }
+    .status-processing { background: #e0e7ff; color: #3730a3; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+  </style>
+
+  <script src="/js/main.js"></script>
+  <script>
+    let orders = [];
+    let transactions = [];
+
+    async function init() {
+      const isAuth = await requireAuth();
+      if (!isAuth) return;
+
+      // Mostrar nome do usuário
+      document.getElementById('userName').textContent = AppState.user.name;
+
+      // Carregar dados
+      await loadDashboard();
+    }
+
+    async function loadDashboard() {
+      showLoading('Carregando...');
+
+      try {
+        // Atualizar dados do usuário
+        await checkAuth();
+
+        // Carregar pedidos
+        const ordersData = await getMyOrders();
+        orders = ordersData.orders || [];
+
+        // Atualizar estatísticas
+        document.getElementById('creditsBalance').textContent = AppState.user.credits || 0;
+        document.getElementById('totalOrders').textContent = orders.length;
+        document.getElementById('activeOrders').textContent = orders.filter(o => ['pending', 'paid', 'processing'].includes(o.status)).length;
+        document.getElementById('completedOrders').textContent = orders.filter(o => o.status === 'completed').length;
+
+        // Exibir pedidos
+        displayOrders();
+
+        hideLoading();
+      } catch (error) {
+        hideLoading();
+        showToast('Erro ao carregar dados', 'error');
+      }
+    }
+
+    function displayOrders() {
+      const container = document.getElementById('ordersContainer');
+
+      if (orders.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; padding: 60px 20px;">
+            <div style="font-size: 64px; margin-bottom: 16px;">📦</div>
+            <h3 style="margin-bottom: 8px;">Nenhum pedido ainda</h3>
+            <p style="color: var(--text-light); margin-bottom: 24px;">Navegue pelos nossos serviços e faça seu primeiro pedido</p>
+            <a href="/" class="btn btn-primary">Ver Serviços</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = orders.map(order => {
+        const statusLabels = {
+          pending: 'Aguardando Pagamento',
+          paid: 'Pago',
+          processing: 'Em Processamento',
+          completed: 'Concluído',
+          cancelled: 'Cancelado'
+        };
+
+        return `
+          <div class="card" style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+              <div>
+                <div style="font-size: 12px; color: var(--text-light); margin-bottom: 4px;">Pedido ${order.id}</div>
+                <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">${order.serviceName}</h3>
+                <div style="font-size: 14px; color: var(--text-light);">${formatDate(order.createdAt)}</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="status-badge status-${order.status}">${statusLabels[order.status]}</div>
+                <div style="font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 8px;">${formatMoney(order.amount)}</div>
+              </div>
+            </div>
+
+            <div style="padding: 16px; background: var(--bg-light); border-radius: var(--radius); margin-bottom: 16px;">
+              <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Método de Pagamento:</div>
+              <div style="font-size: 14px; color: var(--text-light);">
+                ${order.paymentMethod === 'pix' ? 'PIX' : order.paymentMethod === 'credit_card' ? 'Cartão de Crédito' : 'Créditos'}
+              </div>
+            </div>
+
+            ${order.status === 'completed' && order.deliveryFiles && order.deliveryFiles.length > 0 ? `
+              <div style="margin-bottom: 16px;">
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Arquivos Entregues:</div>
+                ${order.deliveryFiles.map(file => `
+                  <a href="${file.url}" class="btn btn-sm btn-outline" style="margin-right: 8px; margin-bottom: 8px;">
+                    📄 ${file.name}
+                  </a>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            ${order.notes ? `
+              <div style="padding: 12px; background: var(--bg-light); border-radius: var(--radius); border-left: 3px solid var(--primary); font-size: 14px;">
+                <strong>Nota:</strong> ${order.notes}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function displayCredits() {
+      const container = document.getElementById('creditsContainer');
+
+      if (transactions.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; padding: 60px 20px;">
+            <div style="font-size: 64px; margin-bottom: 16px;">💳</div>
+            <h3 style="margin-bottom: 8px;">Nenhuma transação ainda</h3>
+            <p style="color: var(--text-light); margin-bottom: 24px;">Compre créditos para começar a economizar</p>
+            <a href="/creditos.html" class="btn btn-primary">Comprar Créditos</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="card">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Créditos</th>
+                <th>Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${transactions.map(txn => `
+                <tr>
+                  <td>${formatDate(txn.createdAt)}</td>
+                  <td>${txn.description}</td>
+                  <td style="color: ${txn.amount > 0 ? 'var(--secondary)' : 'var(--accent)'}; font-weight: 600;">
+                    ${txn.amount > 0 ? '+' : ''}${txn.amount}
+                  </td>
+                  <td style="font-weight: 600;">${txn.balanceAfter}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function switchTab(tab) {
+      // Atualizar botões
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+      // Mostrar/esconder conteúdo
+      document.getElementById('tabOrders').classList.add('hidden');
+      document.getElementById('tabCredits').classList.add('hidden');
+
+      if (tab === 'orders') {
+        document.getElementById('tabOrders').classList.remove('hidden');
+      } else {
+        document.getElementById('tabCredits').classList.remove('hidden');
+        // Carregar transações se ainda não foi carregado
+        if (transactions.length === 0) {
+          // Em produção, chamar API para buscar transações
+          displayCredits();
+        }
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

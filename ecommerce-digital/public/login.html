@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - E-commerce Digital</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo">
+          <span>💼</span>
+          <span>Digital Services</span>
+        </a>
+        <nav class="nav">
+          <a href="/" class="nav-link">Início</a>
+          <a href="/registro.html" class="btn btn-primary btn-sm">Criar Conta</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <section style="padding: 80px 0; min-height: calc(100vh - 200px); display: flex; align-items: center;">
+    <div class="container-narrow">
+      <div class="card" style="max-width: 500px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Bem-vindo de volta!</h1>
+          <p style="color: var(--text-light);">Entre com sua conta para continuar</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label form-label-required">Email</label>
+            <input
+              type="email"
+              class="form-input"
+              id="email"
+              placeholder="seu@email.com"
+              required
+              autocomplete="email"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required">Senha</label>
+            <input
+              type="password"
+              class="form-input"
+              id="password"
+              placeholder="Sua senha"
+              required
+              autocomplete="current-password"
+            >
+          </div>
+
+          <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="remember">
+              <span>Lembrar de mim</span>
+            </label>
+            <a href="#" style="color: var(--primary); text-decoration: none; font-size: 14px;">Esqueceu a senha?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-block" id="loginButton">
+            <span id="loginButtonText">Entrar</span>
+            <span id="loginButtonLoading" class="hidden">
+              <span class="loading"></span>
+              Entrando...
+            </span>
+          </button>
+
+          <div style="text-align: center; margin-top: 24px;">
+            <p style="color: var(--text-light);">
+              Não tem uma conta?
+              <a href="/registro.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">Criar conta</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script src="/js/main.js"></script>
+  <script>
+    // Verificar se já está logado
+    async function checkIfLoggedIn() {
+      const isAuth = await checkAuth();
+      if (isAuth) {
+        // Redirecionar para página de origem ou painel
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect') || '/painel-cliente.html';
+        window.location.href = redirect;
+      }
+    }
+
+    checkIfLoggedIn();
+
+    // Form submit
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // Validação básica
+      if (!isValidEmail(email)) {
+        showAlert('Por favor, insira um email válido', 'error');
+        return;
+      }
+
+      if (password.length < 6) {
+        showAlert('A senha deve ter no mínimo 6 caracteres', 'error');
+        return;
+      }
+
+      // Mostrar loading
+      document.getElementById('loginButtonText').classList.add('hidden');
+      document.getElementById('loginButtonLoading').classList.remove('hidden');
+      document.getElementById('loginButton').disabled = true;
+
+      // Fazer login
+      const result = await login(email, password);
+
+      if (result.success) {
+        showAlert('Login realizado com sucesso!', 'success');
+
+        setTimeout(() => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirect = urlParams.get('redirect') || '/painel-cliente.html';
+          window.location.href = redirect;
+        }, 500);
+      } else {
+        showAlert(result.error, 'error');
+
+        // Resetar botão
+        document.getElementById('loginButtonText').classList.remove('hidden');
+        document.getElementById('loginButtonLoading').classList.add('hidden');
+        document.getElementById('loginButton').disabled = false;
+      }
+    });
+
+    function showAlert(message, type) {
+      const container = document.getElementById('alertContainer');
+      container.innerHTML = `
+        <div class="alert alert-${type}">
+          ${message}
+        </div>
+      `;
+
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
