@@ -5,6 +5,7 @@
 import { Database } from './database.js';
 import { Auth } from './auth.js';
 import { AsaasClient, createPixPayment, createCreditCardPayment } from './asaas.js';
+import { serveStaticFile } from './static.js';
 import {
   jsonResponse,
   errorResponse,
@@ -52,40 +53,40 @@ export default {
       // ==================== ROTAS PÚBLICAS HTML ====================
 
       if (path === '/' || path === '/index.html') {
-        return await serveStaticFile('index.html');
+        return await serveStaticFile('index.html', env.ECOMMERCE_DB);
       }
 
       if (path === '/servico.html') {
-        return await serveStaticFile('servico.html');
+        return await serveStaticFile('servico.html', env.ECOMMERCE_DB);
       }
 
       if (path === '/checkout.html') {
-        return await serveStaticFile('checkout.html');
+        return await serveStaticFile('checkout.html', env.ECOMMERCE_DB);
       }
 
       if (path === '/creditos.html') {
-        return await serveStaticFile('creditos.html');
+        return await serveStaticFile('creditos.html', env.ECOMMERCE_DB);
       }
 
       if (path === '/painel-cliente.html') {
-        return await serveStaticFile('painel-cliente.html');
+        return await serveStaticFile('painel-cliente.html', env.ECOMMERCE_DB);
       }
 
       if (path === '/painel-admin.html') {
-        return await serveStaticFile('painel-admin.html');
+        return await serveStaticFile('painel-admin.html', env.ECOMMERCE_DB);
       }
 
       if (path === '/login.html') {
-        return await serveStaticFile('login.html');
+        return await serveStaticFile('login.html', env.ECOMMERCE_DB);
       }
 
       if (path === '/registro.html') {
-        return await serveStaticFile('registro.html');
+        return await serveStaticFile('registro.html', env.ECOMMERCE_DB);
       }
 
       // Arquivos estáticos (CSS/JS/imagens)
       if (path.startsWith('/css/') || path.startsWith('/js/') || path.startsWith('/img/')) {
-        return await serveStaticFile(path.substring(1));
+        return await serveStaticFile(path.substring(1), env.ECOMMERCE_DB);
       }
 
       // ==================== API - CATÁLOGO ====================
@@ -564,23 +565,3 @@ export default {
   }
 };
 
-/**
- * Serve arquivo estático (será substituído por arquivos reais)
- */
-async function serveStaticFile(filename) {
-  // Em produção, você pode usar KV ou R2 para armazenar arquivos estáticos
-  // Por enquanto, retorna placeholder
-  return htmlResponse(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>E-commerce Digital - ${filename}</title>
-      </head>
-      <body>
-        <h1>Arquivo: ${filename}</h1>
-        <p>Este é um placeholder. Os arquivos HTML serão criados a seguir.</p>
-      </body>
-    </html>
-  `);
-}
