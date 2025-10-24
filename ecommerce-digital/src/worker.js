@@ -5,7 +5,7 @@
 import { Database } from './database.js';
 import { Auth } from './auth.js';
 import { AsaasClient, createPixPayment, createCreditCardPayment } from './asaas.js';
-import { serveStaticFile } from './static.js';
+import { serveStaticFile } from './static-embedded.js';
 import {
   jsonResponse,
   errorResponse,
