@@ -9,9 +9,9 @@
  * Nota: Requer que você tenha configurado o wrangler e o KV namespace
  */
 
-const fs = require('fs').promises;
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs/promises';
+import path from 'path';
+import { execSync } from 'child_process';
 
 const FILES_TO_UPLOAD = [
   'public/index.html',
